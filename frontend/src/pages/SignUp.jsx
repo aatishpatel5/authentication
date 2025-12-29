@@ -191,7 +191,7 @@ setStep(2)
             onClick={handleSignUp}
             disabled={loading}
           >
-            {loading ? <ClipLoader/> : "SignUp" }
+         SignUp
           </button>
                   <p className="text-red-500 text-center ">{err}</p>
 
