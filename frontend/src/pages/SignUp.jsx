@@ -33,9 +33,6 @@ function SignUp() {
         setLoading(true);
 
     try {
-      // console.log(`error 1 in handleSignup: ${email} ${typeof(email)}`)
-      // console.log(`error 1 in handleSignup: ${otp} ${typeof(otp)}`)
-      console.log("error 1 checking");
       const result = await axios.post(
         `${serverUrl}/api/auth/signup`,
         {
@@ -48,13 +45,13 @@ function SignUp() {
       );
  setErr("");
 setStep(2)
- console.log(`Checking in signUp page:`, email);
 
  setLoading(false);
     } catch (error) {
     setLoading(false);
-      setErr(error.response.data.message);
-      console.log(error.response.data.message);    }
+      setErr(error.response.data.message); 
+          console.log(error.response.data.message);
+    }
   };
 
   // const handleVerifyOtp = async () => {
@@ -74,8 +71,7 @@ setStep(2)
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    // 1. Pehle check karo ki bheja kya ja raha hai
-    console.log("Sending Data ->", {
+  {
       email,
       otp,
       fullName,
@@ -94,16 +90,9 @@ setStep(2)
       console.log("Success Result:", result);
       dispatch(setUserData(result.data));
     } catch (error) {
-      // 2. Agar Error aaya to ye chalega
-      console.error("Error aya hai!");
 
-      if (error.response) {
-        // Server ne jo exact error message bheja hai wo yahan milega
-        console.log("Server Response Data:", error.response.data);
-        console.log("Status Code:", error.response.status);
-      } else {
-        console.log("Error Message:", error.message);
-      }
+        console.log("Server Response error:", error.response.data);
+     
     }
   };
 
@@ -123,11 +112,8 @@ setStep(2)
             className={`text-3xl font-bold mb-2`}
             style={{ color: primaryColor }}
           >
-            E-Com
+         Authentication
           </h1>
-          <p className="text-gray-600 mb-4">
-            Create your account to get started with delicious food deliveries
-          </p>
 
           {/* fullName  */}
           <div>
