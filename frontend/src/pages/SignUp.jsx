@@ -62,7 +62,7 @@ setStep(2)
       fullName,
       password,
       role,
-    })
+    }
 
     try {
       const result = await axios.post(
