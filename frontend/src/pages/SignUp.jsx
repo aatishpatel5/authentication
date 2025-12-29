@@ -56,13 +56,7 @@ setStep(2)
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-  {
-      email,
-      otp,
-      fullName,
-      password,
-      role,
-    }
+
 
     try {
       const result = await axios.post(
