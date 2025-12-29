@@ -7,7 +7,7 @@ import userGetCurrentUser from './hooks/useGetCurrentUser';
 import { useSelector } from 'react-redux';
 import ForgotPassword from './pages/ForgotPassword';
 
-export const serverUrl = "http://localhost:5173/";
+export const serverUrl = "http://localhost:8000";
 
 
 function App() { 
