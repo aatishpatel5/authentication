@@ -30,11 +30,11 @@ function SignUp() {
   const dispatch = useDispatch();
 
   const handleSignUp = async () => {
-    console.log("error check signUp.jsx")
+    console.log("error 1 check signUp.jsx")
         setLoading(true);
-console.log("error check signUp.jsx")
+console.log("error 2 check signUp.jsx")
     try {
-  console.log("error check signUp.jsx")
+  console.log("error 3 check signUp.jsx")
       const result = await axios.post(
         `${serverUrl}/api/auth/signup`,
         {
@@ -45,7 +45,7 @@ console.log("error check signUp.jsx")
         },
         { withCredentials: true }
       );
-  console.log("error check signUp.jsx")
+  console.log("error 4 check signUp.jsx")
 setStep(2) 
       console.log("result is : --->>>",result) 
  setLoading(false);
