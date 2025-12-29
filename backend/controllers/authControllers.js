@@ -2,6 +2,8 @@ import User from "../models/userModel.js";
 import { sendOtpMail } from "../utils/mail.js";
 import tokenGenrate from "../utils/token.js";
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const initiateSignup = async (req, res) => {
   console.log(`error 0 in authcontrollers initiateSignup`);
@@ -118,12 +120,12 @@ export const verifyOtpAndSignup = async (req, res) => {
     await user.save();
 
     const token = await tokenGenrate(user._id);
-    res.cookie("token", token, {
-      secure: false,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
+     res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProduction, // Production me TRUE, Localhost par FALSE
+  sameSite: isProduction ? "none" : "strict", // Cross-site cookie ke liye 'none' zaroori hai
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
     console.log("in verifyOtpAndSignup erro check 1");
     return res.status(200).json(user);
