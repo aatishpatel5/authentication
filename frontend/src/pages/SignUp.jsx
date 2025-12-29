@@ -52,22 +52,7 @@ setStep(2)
       setErr(error.response.data.message); 
           console.log(error.response.data.message);
     }
-  };
-
-  // const handleVerifyOtp = async () => {
-  //   try {
-
-  //     const result = await axios.post(
-  //       `${serverUrl}/api/auth/verify-signup`,
-  //       { email, otp },
-  //       { withCredentials: true }
-  //     );
-  //     console.log(result)
-  //     dispatch(setUserData(result));
-  //   } catch (error) {
-  //     console.log(`error in handleVerifyOtp: ${error}`);
-  //   }
-  // };
+  }
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -77,17 +62,15 @@ setStep(2)
       fullName,
       password,
       role,
-    });
+    })
 
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/verify-signup`,
         { otp, fullName, email, password, role },
         { withCredentials: true }
-      );
+      )
 
-      // Agar sab sahi raha toh ye chalega
-      console.log("Success Result:", result);
       dispatch(setUserData(result.data));
     } catch (error) {
 
