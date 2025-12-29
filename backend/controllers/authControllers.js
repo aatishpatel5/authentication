@@ -109,8 +109,8 @@ export const verifyOtpAndSignup = async (req, res) => {
     const token = await tokenGenrate(user._id);
      res.cookie("token", token, {
   httpOnly: true,
-  secure: isProduction, // Production me TRUE, Localhost par FALSE
-  sameSite: isProduction ? "none" : "strict", // Cross-site cookie ke liye 'none' zaroori hai
+  secure: true ,// Production me TRUE, Localhost par FALSE
+  sameSite: "none" // Cross-site cookie ke liye 'none' zaroori hai
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
@@ -151,10 +151,10 @@ export const logIn = async (req, res) => {
 
     const token = await tokenGenrate(user._id);
     res.cookie("token", token, {
-      secure: false,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
+  secure: true ,// Production me TRUE, Localhost par FALSE
+  sameSite: "none" // Cross-site cookie ke liye 'none' zaroori hai
+  maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     // console.log("token testing in signIn controller", token)
@@ -171,10 +171,10 @@ export const logOutSite = async (req, res) => {
   try {
 
     const cookieOption = {
-      httpOnly: true,
-      secure: false, // Make sure ye creation time pe bhi 'false' hi tha
-      sameSite: "strict",
-      maxAge: 0,
+       httpOnly: true,
+  secure: true ,// Production me TRUE, Localhost par FALSE
+  sameSite: "none" // Cross-site cookie ke liye 'none' zaroori hai
+  maxAge: 7 * 24 * 60 * 60 * 1000,
     };
     res.clearCookie("token", cookieOption);
 
