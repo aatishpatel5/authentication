@@ -7,7 +7,7 @@ import userGetCurrentUser from './hooks/useGetCurrentUser';
 import { useSelector } from 'react-redux';
 import ForgotPassword from './pages/ForgotPassword';
 
-export const serverUrl = "http://localhost:8000";
+export const serverUrl = "https://authentication-lova.onrender.com";
 
 function App() { 
   userGetCurrentUser()
