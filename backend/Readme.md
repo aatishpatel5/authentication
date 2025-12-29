@@ -1,0 +1,280 @@
+import User from "../models/userModel.js";
+import { sendOtpMail } from "../utils/mail.js";
+import tokenGenrate from "../utils/token.js";
+import bcrypt from "bcryptjs";
+
+export const initiateSignup = async (req, res) => {
+  console.log(`error 0 in authcontrollers initiateSignup`);
+
+  try {
+    console.log(`error 1 in authcontrollers initiateSignup`);
+    const { fullName, email, password, role } = req.body;
+
+    // if (!email.endsWith("@gmail.com")) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Invalid email format. Please use a Gmail address." });
+    // }
+
+    // let user = await User.findOne({ email });
+
+    // if (user && user.isOtpVerified) {
+    //   return req.status(400).json({ message: "User already exist." });
+    // }
+
+    // console.log(`Password check in signup: ${password}`);
+    // if (password.length < 4) {
+    //   return res.status(400).json({
+    //     message:
+    //       "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+    //   });
+    // }
+
+    // const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Verify account process to send otp
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedOtp = await bcrypt.hash(otp, salt);
+    // user.resetOtp = otp;
+    const otpExpires = Date.now() + 30 * 60 * 1000;
+
+  //   if (user) {
+  //     user.fullName = fullName;
+  //     user.password = hashedPassword;
+  //     user.resetOtp = otp;
+  //     user.otpExpires = otpExpires;
+  //     await user.save;
+  //     console.log(`error 8 in authcontrollers initiateSignup`);
+  //   } else {
+  // await User.create({
+  //       fullName,
+  //       email,
+  //       password: hashedPassword,
+  //       resetOtp: otp,
+  //       otpExpires,
+  //       role,
+  //       isVerified: false,
+  //     });
+  //     }
+   
+
+    await sendOtpMail(email, otp);
+    console.log(`error 10 in authcontrollers initiateSignup`);
+
+    
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to your email. Please verify.",
+    });
+
+    // user.verifyOtp = otp;
+    // user.isVerified = false;
+    // await user.save();
+  } catch (error) {
+    return res
+      .status(500)
+      .json(`Server Error during SignUp Initiation : ${error}`);
+  }
+};
+
+export const verifyOtpAndSignup = async (req, res) => {
+  console.log("error in verifyOtpAndSignup hai")
+  try {
+    const { email, otp, fullName, password,
+          role, } = req.body;
+          
+    if (!email.endsWith("@gmail.com")) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format. Please use a Gmail address." });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (user && user.isOtpVerified) {
+      return req.status(400).json({ message: "User already exist." });
+    }
+
+    console.log(`Password check in signup: ${password}`);
+    if (password.length < 4) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const providedOtpString = String(otp);
+
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // if(user.isOtpVerified){
+    //   console.log("error in isOtpVerify tru ho to")
+    //     return res.status(400).json({message: "User already verified. Please Login."})
+    // }
+
+    if (user.otpExpires < Date.now()) {
+      return res
+        .status(400)
+        .json({ message: "OTP expired. Please request a new one." });
+    }
+
+    if (user.resetOtp != providedOtpString) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    user.isOtpVerified = true;
+    user.resetOtp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+    await User.create({
+        fullName,
+        email,
+        password: hashedPassword,
+        resetOtp: otp,
+        otpExpires,
+        role,
+        isVerified: false,})
+
+    const token = await tokenGenrate(user._id);
+    res.cookie("token", token, {
+      secure: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    });
+
+    console.log("in verifyOtpAndSignup erro check 1");
+    return res.status(200).json(user);
+
+    // console.log("token testing in signIn controller", token)
+
+    // return res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error during Verification" });
+  }
+};
+
+export const logIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email.endsWith("@gmail.com")) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format. Please use a Gmail address." });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "incorrect password" });
+    }
+
+    const token = await tokenGenrate(user._id);
+    res.cookie("token", token, {
+      secure: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    });
+
+    // console.log("token testing in signIn controller", token)
+
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).json(`signIn error: ${error}`);
+  }
+};
+
+export const logOutSite = async (req, res) => {
+  console.log("error check 0 in logOut controllers");
+
+  try {
+    console.log("error check 1 in logOut controllers");
+
+    const cookieOption = {
+      httpOnly: true,
+      secure: false, // Make sure ye creation time pe bhi 'false' hi tha
+      sameSite: "strict",
+      maxAge: 0,
+    };
+    console.log("error check 2 in logOut controllers");
+    res.clearCookie("token", cookieOption);
+    console.log("error check 3 in logOut controllers");
+
+    return res.status(200).json({ message: "logOut successfully" });
+  } catch (error) {
+    return res.status(500).json(`logOut error ${error}`);
+  }
+};
+
+export const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email.endsWith("@gmail.com")) {
+      return res.status(400).json({ message: "Invalid email  format." });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist." });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetOtp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
+    user.isOtpVerified = false;
+    await user.save();
+    await sendOtpMail(email, otp);
+
+    return res.status(200).json({ message: "otp send successfully" });
+  } catch (error) {
+    return res.status(500).json(`send otp error ${error}`);
+  }
+};
+
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || user.resetOtp != otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ message: "invalid/expired otp" });
+    }
+
+    user.isOtpVerified = true;
+    user.resetOtp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "otp verify successfully" });
+  } catch (error) {
+    return res.status(500).json(`verify otp error ${error}`);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    const user = await User.findOne({ email });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.isOtpVerified = false;
+    await user.save();
+    return res.status(200).json({ messaeg: "password reset successfully" });
+  } catch (error) {
+    return res.status(500).json(`reset password error  ${error}`);
+  }
+};
