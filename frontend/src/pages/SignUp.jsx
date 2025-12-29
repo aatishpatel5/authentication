@@ -43,9 +43,8 @@ function SignUp() {
         },
         { withCredentials: true }
       );
- setErr("");
-setStep(2)
-
+setStep(2) 
+      console.log("result is : --->>>",result) 
  setLoading(false);
     } catch (error) {
     setLoading(false);
