@@ -58,13 +58,14 @@ export const initiateSignup = async (req, res) => {
     }
   
 
-    await sendOtpMail(email, otp);
-    if (password.length == 5) {
-      return res.status(400).json({
+   const emailSent =  await sendOtpMail(email, otp);
+    if(!emailSent){
+       return res.status(500).json({
         message:
-          "Password equels to 5.",
+          "Otp not sent",
       });
     }
+  
     res.status(200).json({
       success: true,
       message: "OTP sent to your email. Please verify.",
