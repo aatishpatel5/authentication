@@ -1,57 +1,58 @@
-
-
-
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-
-// Production me environment variables system se aate hain, par safe side ke liye config rakhein
 dotenv.config();
 
-const sendOtpMail = async (to, otp) => {
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,             // Industry Standard for modern cloud hosting
+  secure: false,         // False = STARTTLS (Upgrades to Encrypted Connection)
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASS, // Spaces nahi hone chahiye
+  },
+  // Network Settings for Reliability on Render
+  tls: {
+    ciphers: "SSLv3",    // Compatibility fix
+  },
+  family: 4,             // IMPORTANT: Force IPv4 (Fixes Render Timeout)
+  
+  // Timeout Settings (Server hang hone se rokega)
+  connectionTimeout: 10000, // 10 seconds wait karega connection ke liye
+  greetingTimeout: 5000,    // 5 seconds wait karega Gmail ke hello ke liye
+  socketTimeout: 15000,     // 15 seconds max transaction time
+});
+
+// Verification Logic (Server start hote hi check karega)
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP Connection Error:", error.message);
+  } else {
+    console.log("✅ SMTP Server Connected & Ready (Secure)");
+  }
+});
+
+export const sendOtpMail = async (to, otp) => {
   try {
-    // Step 1: Transporter Create karein
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", // 'service: Gmail' HATANA hai
-      port: 465,              // Secure SSL port
-      secure: true,           // 465 ke liye true
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS, // App Password (NO SPACES)
-      },
-      // Production fix: TLS cipher issue solve karne ke liye
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
-    // Step 2: Verify Connection (Optional but good for debugging)
-    await transporter.verify();
-    console.log("✅ SMTP Server Connected Successfully");
-
-    // Step 3: Mail Options
-    const mailOptions = {
-      from: `"Support Team" <${process.env.EMAIL}>`, 
-      to: to,
-      subject: "Your OTP Verification Code",
+    const info = await transporter.sendMail({
+      from: `"Your App Name" <${process.env.EMAIL}>`, // Professional Sender Name
+      to,
+      subject: "Verify your account",
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Verify Your Account</h2>
-          <p>Your OTP is: <b style="font-size: 20px; color: #007bff;">${otp}</b></p>
-          <p>This code expires in 5 minutes.</p>
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="color: #333;">Account Verification</h2>
+          <p>Your One-Time Password (OTP) is:</p>
+          <h1 style="color: #007bff; letter-spacing: 2px;">${otp}</h1>
+          <p style="font-size: 12px; color: #666;">This code expires in 5 minutes.</p>
         </div>
       `,
-    };
-
-    // Step 4: Send Mail
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully ID:", info.messageId);
+    });
+    
+    console.log(`✅ Email sent to ${to}. ID: ${info.messageId}`);
     return true;
 
   } catch (error) {
-    console.error("❌ Email Sending Failed Error:", error);
-    // Important: Error ko throw na karein, false return karein taaki server crash na ho
+    // Ye error detail Render logs me dikhegi agar fail hua
+    console.error("❌ Email Failed:", error);
     return false;
   }
 };
-
-export { sendOtpMail };
