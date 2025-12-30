@@ -29,6 +29,9 @@ export const sendOtpMail = async (to, otp) => {
   return true;}
  catch(error){
   console.error("Email Sending Failed:", error.message);
-    return false;
+    return res.status(400).json({
+        message:
+          "utils email not sent in utils",
+      });
  }
 };
