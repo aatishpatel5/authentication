@@ -56,6 +56,12 @@ export const initiateSignup = async (req, res) => {
         isVerified: false,
       });
     }
+      if (password.length == 5) {
+      return res.status(400).json({
+        message:
+          "Password equels to 5.",
+      });
+    }
 
     await sendOtpMail(email, otp);
 
