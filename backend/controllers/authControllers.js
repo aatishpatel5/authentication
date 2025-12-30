@@ -153,8 +153,8 @@ export const logIn = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
   secure: true ,// Production me TRUE, Localhost par FALSE
-  sameSite: "none" // Cross-site cookie ke liye 'none' zaroori hai
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  sameSite: "none",// Cross-site cookie ke liye 'none' zaroori hai
+  maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     // console.log("token testing in signIn controller", token)
@@ -173,7 +173,7 @@ export const logOutSite = async (req, res) => {
     const cookieOption = {
        httpOnly: true,
   secure: true ,// Production me TRUE, Localhost par FALSE
-  sameSite: "none" // Cross-site cookie ke liye 'none' zaroori hai
+  sameSite: "none" ,// Cross-site cookie ke liye 'none' zaroori hai
   maxAge: 7 * 24 * 60 * 60 * 1000,
     };
     res.clearCookie("token", cookieOption);
