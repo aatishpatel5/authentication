@@ -3,37 +3,38 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail", // Explicit service use karein
+  host: process.env.SMTP_HOST || "smtp-relay.brevo.com", // Brevo ka Host
+  port: process.env.SMTP_PORT || 587, // Brevo ka Port
+  secure: false, // Brevo ke liye False hi rakhein
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASS,
+    user: process.env.EMAIL, // Aapka Brevo Login Email
+    pass: process.env.PASS,  // Brevo SMTP Key (Not Gmail Password)
   },
-  // POOLING: Ye connection ko zinda rakhta hai
-  pool: true, 
-  maxConnections: 1,
-  rateLimit: 3, // 1 second me max 3 emails (Google limit avoid karne ke liye)
-  
-  // Timeout settings badhayein
-  connectionTimeout: 20000, // 20 seconds
-  greetingTimeout: 20000,
-  socketTimeout: 20000,
 });
 
 export const sendOtpMail = async (to, otp) => {
   try {
-    console.log(`⏳ Attempting to send OTP to ${to}...`);
+    console.log(`🚀 Sending email via Brevo to: ${to}`);
     
     const info = await transporter.sendMail({
-      from: `"Support Team" <${process.env.EMAIL}>`,
+      from: `"My App Support" <${process.env.EMAIL}>`, // Sender Name badhiya lagta hai
       to,
       subject: "Verify your account",
-      html: `<p>Your OTP is: <b>${otp}</b></p>`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Your Verification Code</h2>
+          <p style="font-size: 16px;">Here is your OTP:</p>
+          <h1 style="color: #4CAF50;">${otp}</h1>
+          <p>Valid for 5 minutes.</p>
+        </div>
+      `,
     });
 
-    console.log("✅ Email Sent! ID:", info.messageId);
+    console.log("✅ Email sent successfully! Message ID:", info.messageId);
     return true;
+
   } catch (error) {
-    console.error("❌ FINAL ERROR:", error);
+    console.error("❌ Email Error:", error);
     return false;
   }
 };
