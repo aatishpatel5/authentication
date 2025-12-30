@@ -60,7 +60,7 @@ export const initiateSignup = async (req, res) => {
 
    const emailSent =  await sendOtpMail(email, otp);
     if(!emailSent){
-       return res.status(500).json({
+       return res.status(400).json({
         message:
           "Otp not sent",
       });
