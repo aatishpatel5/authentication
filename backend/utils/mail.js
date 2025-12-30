@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
- service: "Gmail",
+host:"smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {
@@ -13,10 +13,22 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendOtpMail = async (to, otp) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL,
-    to,
-    subject: "Verify your account",
-    html: `<p> Your OTP: ${otp} for verify account </b> It expires in 5 minutes.</p>`,
-  });
+ try{
+  const info = await transporter.sendMail({
+      from: `"My App Name" <${process.env.EMAIL}>`, // Professional look
+      to,
+      subject: "Verify your account",
+      html: `
+        <div style="font-family: sans-serif; padding: 20px;">
+          <h2>Account Verification</h2>
+          <p>Your OTP is: <b style="color: blue; font-size: 18px;">${otp}</b></p>
+          <p>It expires in 5 minutes.</p>
+        </div>
+      `,
+    });
+  return true;}
+ catch(error){
+  console.error("Email Sending Failed:", error.message);
+    return false;
+ }
 };
