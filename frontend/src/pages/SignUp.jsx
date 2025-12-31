@@ -30,12 +30,11 @@ function SignUp() {
   const dispatch = useDispatch();
 
   const handleSignUp = async () => {
+    console.log("error 1 check signUp.jsx")
         setLoading(true);
-
+console.log("error 2 check signUp.jsx")
     try {
-      // console.log(`error 1 in handleSignup: ${email} ${typeof(email)}`)
-      // console.log(`error 1 in handleSignup: ${otp} ${typeof(otp)}`)
-      console.log("error 1 checking");
+  console.log("error 3 check signUp.jsx")
       const result = await axios.post(
         `${serverUrl}/api/auth/signup`,
         {
@@ -46,64 +45,33 @@ function SignUp() {
         },
         { withCredentials: true }
       );
- setErr("");
-setStep(2)
- console.log(`Checking in signUp page:`, email);
-
+  console.log("error 4 check signUp.jsx")
+setStep(2) 
+      console.log("result is : --->>>",result) 
  setLoading(false);
     } catch (error) {
     setLoading(false);
-      setErr(error.response.data.message);
-      console.log(error.response.data.message);    }
-  };
-
-  // const handleVerifyOtp = async () => {
-  //   try {
-
-  //     const result = await axios.post(
-  //       `${serverUrl}/api/auth/verify-signup`,
-  //       { email, otp },
-  //       { withCredentials: true }
-  //     );
-  //     console.log(result)
-  //     dispatch(setUserData(result));
-  //   } catch (error) {
-  //     console.log(`error in handleVerifyOtp: ${error}`);
-  //   }
-  // };
+      setErr(error.response.data.message); 
+          console.log(error.response.data.message);
+    }
+  }
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    // 1. Pehle check karo ki bheja kya ja raha hai
-    console.log("Sending Data ->", {
-      email,
-      otp,
-      fullName,
-      password,
-      role,
-    });
+
 
     try {
       const result = await axios.post(
         `${serverUrl}/api/auth/verify-signup`,
         { otp, fullName, email, password, role },
         { withCredentials: true }
-      );
+      )
 
-      // Agar sab sahi raha toh ye chalega
-      console.log("Success Result:", result);
       dispatch(setUserData(result.data));
     } catch (error) {
-      // 2. Agar Error aaya to ye chalega
-      console.error("Error aya hai!");
 
-      if (error.response) {
-        // Server ne jo exact error message bheja hai wo yahan milega
-        console.log("Server Response Data:", error.response.data);
-        console.log("Status Code:", error.response.status);
-      } else {
-        console.log("Error Message:", error.message);
-      }
+        console.log("Server Response error:", error.response.data);
+     
     }
   };
 
@@ -123,11 +91,8 @@ setStep(2)
             className={`text-3xl font-bold mb-2`}
             style={{ color: primaryColor }}
           >
-            E-Com
+         Authentication
           </h1>
-          <p className="text-gray-600 mb-4">
-            Create your account to get started with delicious food deliveries
-          </p>
 
           {/* fullName  */}
           <div>
@@ -226,7 +191,7 @@ setStep(2)
             onClick={handleSignUp}
             disabled={loading}
           >
-            {loading ? <ClipLoader/> : "SignUp" }
+         SignUp
           </button>
                   <p className="text-red-500 text-center ">{err}</p>
 
